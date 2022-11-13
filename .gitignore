@@ -135,3 +135,7 @@ clustering algorithms/
 
 # visual studio code files
 .vscode/
+
+# Datasets information
+Datasets/
+TestQueries/
