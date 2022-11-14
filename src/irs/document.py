@@ -1,9 +1,12 @@
 class document:
-    def __init__(self, doc_id, doc_name, doc_content, doc_lang):
+    def __init__(self, doc_id, doc_name, doc_body, doc_lang, irs):
         self.doc_id = doc_id
         self.doc_name = doc_name
-        self.doc_content = doc_content
+        self.doc_body = doc_body
         self.doc_lang = doc_lang
+        self.irs = irs
+        self.doc_normalized_name = irs.processing_text(doc_name, doc_lang)
+        self.doc_normalized_body = irs.processing_text(doc_body, doc_lang)
 
     def get_doc_id(self):
         return self.doc_id
@@ -24,4 +27,4 @@ class document:
         self.doc_content = doc_content
 
     def __str__(self):
-        return "doc_id: " + self.doc_id + 
+        return "doc_id: " + self.doc_id + ""
