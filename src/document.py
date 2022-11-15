@@ -1,5 +1,9 @@
-class document:
-    def __init__(self, doc_id, doc_name, doc_body, doc_lang, irs):
+from irs import IRS
+
+class Document:
+    """This is a Document object containing the original Document and the normalized version of it.
+    """
+    def __init__(self, doc_id: int, doc_name: str, doc_body: str, doc_lang: str, irs):
         self.doc_id = doc_id
         self.doc_name = doc_name
         self.doc_body = doc_body
@@ -27,4 +31,4 @@ class document:
         self.doc_content = doc_content
 
     def __str__(self):
-        return "doc_id: " + self.doc_id + ""
+        return f'doc_id: {self.doc_id}, doc_title: {self.doc_name}'

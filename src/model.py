@@ -1,11 +1,18 @@
-class Models:
-    def __init__(self):
-        self.__indexing_documents = []
+from document import Document
+from irs import IRS
 
-    def indexing_documents(self, documents):
+class Model:
+    def __init__(self, irs):
+        self.document = []
+        self.irs = irs
+
+    def get_model_name(self) -> str:
+        return self.__class__.__name__
+
+    def add_documents(self, documents):
         pass
 
-    def index_document(self, document):
+    def add_document(self, document):
         pass
 
     def index_query(self, query):
