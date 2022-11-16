@@ -1,13 +1,11 @@
 from document import Document
 from typing import Callable
-from storage import Storage
 
 # TODO: Create a factory for creating models
 class Model:
     def __init__(self, text_processor: Callable[[str, str], list[str]]):
         self.documents: dict[int, Document] = {}
         self.text_processor = text_processor
-        self.storage: Storage
 
     def get_model_name(self) -> str:
         return self.__class__.__name__

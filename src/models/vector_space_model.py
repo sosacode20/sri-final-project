@@ -18,7 +18,6 @@ class Vector_Model(Model):
         self.tf: dict[tuple[str, int], float] = {}
         """This is the relative frequency of a token in a document. 
         Dictionary where the key is a tuple (term_str, doc_index) and the value is the tf of the term in the document"""
-        # Dictionary where the key is a term and the value is the frequency of the term in the collection of documents
         self.tdf: dict[str, int] = {}
         """
         This is the amount of documents in which the term is present
@@ -27,7 +26,6 @@ class Vector_Model(Model):
         """
         This is the smooth constant for the query formula
         """
-        # bool to know when is necessary to recalculate the weights
         self.__document_vector_dirty = False
         """This is a property to know when is necessary to recalculate the document vectors
         """
@@ -106,9 +104,6 @@ class Vector_Model(Model):
         self.vocabulary = sorted([term for term in self.tdf])
 
         doc_indexes = [*self.documents.keys()]
-        # generate the __document_vectors as a dictionary where the key is the document_id and the value is an ndarray of dimension len(vocabulary)
-        # self.__document_vectors = {doc_index: np.zeros(len(self.vocabulary)) for doc_index in doc_indexes}
-
         for doc_index in doc_indexes:
             for term_index in range(len(self.vocabulary)):
                 # term = self.vocabulary[j]
@@ -164,9 +159,8 @@ class Vector_Model(Model):
                 if vector1[i][0] == vector2[j][0]:
                     dot_product += vector1[i][1] * vector2[j][1]
                     break
-        pow: float = 1/len(self.vocabulary)
-        norm: float = math.pow(sum([vector1[i][1] ** 2 for i in range(len(vector1))]),
-                               pow) * math.pow(sum([vector2[i][1] ** 2 for i in range(len(vector2))]), pow)
+        norm = math.sqrt(sum([vector1[i][1] ** 2 for i in range(len(vector1))])
+                         ) * sum([vector2[i][1] ** 2 for i in range(len(vector2))])
         if norm == 0:
             return 0
         return dot_product / norm
