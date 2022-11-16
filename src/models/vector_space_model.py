@@ -101,7 +101,7 @@ class Vector_Model(Model):
         if not self.__document_vector_dirty:  # If the vectors are already calculated there is no need for recalculation
             return
         self.__document_vector_dirty = False
-        # Create the vocabulary sorted
+
         self.vocabulary = sorted([term for term in self.tdf])
         
         doc_indexes = [*self.documents.keys()]
@@ -145,8 +145,6 @@ class Vector_Model(Model):
         return query_vector
 
     def similitud(self, vector1: np.ndarray, vector2: np.ndarray) -> float:
-        # numpy dot product
-        # In here was an error: invalid value encountered in double_scalars
         return (np.dot(vector1, vector2) + 1) / (np.linalg.norm(vector1) * np.linalg.norm(vector2) + 1)
 
     def get_ranking(self, query: str, first_n_results: int, lang: str = 'english'):
@@ -159,6 +157,4 @@ class Vector_Model(Model):
             sim = self.similitud(doc_vector, query_vector)
             doc_rank.append((sim, index))
         self.last_ranking = sorted(doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
-        # In the return was an error: Key error -> I don't know wy 'Key error' when last_ranking it's not a dictionary
-        #[ ]: Mira aqui x[1] = 0, pero documents empieza a indexar en 1 
         return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]
