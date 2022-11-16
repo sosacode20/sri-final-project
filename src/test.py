@@ -29,6 +29,6 @@ irs_instance.add_model(vector_model)
 irs_instance.add_parser(cran)
 irs_instance.add_document_collection("./data", "Cran", "Vector Space Model")
 
-query = 'flow past'
-ranking = vector_model.get_ranking(query, 5)
+query = 'experimental study'
+ranking = vector_model.get_ranking(query, 10)
 print([(doc.doc_id,doc.doc_name) for doc in ranking])
