@@ -1,12 +1,16 @@
-class document:
-    def __init__(self, doc_id, doc_name, doc_body, doc_lang, irs):
+from typing import Callable
+
+class Document:
+    """This is a Document object containing the original Document and the normalized version of it.
+    """
+    def __init__(self, doc_id: int, doc_name: str, doc_body: str, text_processor: Callable[[str,str],list[str]], doc_lang: str):
         self.doc_id = doc_id
         self.doc_name = doc_name
         self.doc_body = doc_body
         self.doc_lang = doc_lang
-        self.irs = irs
-        self.doc_normalized_name = irs.processing_text(doc_name, doc_lang)
-        self.doc_normalized_body = irs.processing_text(doc_body, doc_lang)
+        self.text_processor = text_processor
+        self.doc_normalized_name = text_processor(doc_name, doc_lang)
+        self.doc_normalized_body = text_processor(doc_body, doc_lang)
 
     def get_doc_id(self):
         return self.doc_id
@@ -27,4 +31,4 @@ class document:
         self.doc_content = doc_content
 
     def __str__(self):
-        return "doc_id: " + self.doc_id + ""
+        return f'doc_id: {self.doc_id}, doc_title: {self.doc_name}'
