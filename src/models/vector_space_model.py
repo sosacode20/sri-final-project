@@ -3,6 +3,7 @@ from typing import Callable
 # from ..document import Document
 from document import Document
 import numpy as np
+import math
 
 
 class Vector_Model(Model):
@@ -10,7 +11,7 @@ class Vector_Model(Model):
     def __init__(self, text_processor: Callable[[str, str], list[str]]):
         super().__init__(text_processor)
         # TODO: Store this in a binary tree to remove ordering... for now it is an ordered list
-        self.vocabulary:list[str] = []
+        self.vocabulary: list[str] = []
         """
         This is the set of all words in the collection of documents
         """
@@ -22,7 +23,7 @@ class Vector_Model(Model):
         """
         This is the amount of documents in which the term is present
         """
-        self.smooth_constant:float = 0.6
+        self.smooth_constant: float = 0.6
         """
         This is the smooth constant for the query formula
         """
@@ -30,8 +31,8 @@ class Vector_Model(Model):
         self.__document_vector_dirty = False
         """This is a property to know when is necessary to recalculate the document vectors
         """
-        self.__document_vectors: dict[int, np.ndarray] = {}
-        """This is the vector 
+        self.__document_vectors: dict[int, list[tuple[int, float]]] = {}
+        """This is the dictionary where the key is the document_id and the value is a list of tuples (term_index, tf * idf)
         """
         # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
         self.last_ranking: list[tuple[float, int]] = []
@@ -103,10 +104,10 @@ class Vector_Model(Model):
         self.__document_vector_dirty = False
 
         self.vocabulary = sorted([term for term in self.tdf])
-        
+
         doc_indexes = [*self.documents.keys()]
         # generate the __document_vectors as a dictionary where the key is the document_id and the value is an ndarray of dimension len(vocabulary)
-        self.__document_vectors = {doc_index: np.zeros(len(self.vocabulary)) for doc_index in doc_indexes}
+        # self.__document_vectors = {doc_index: np.zeros(len(self.vocabulary)) for doc_index in doc_indexes}
 
         for doc_index in doc_indexes:
             for term_index in range(len(self.vocabulary)):
@@ -114,9 +115,12 @@ class Vector_Model(Model):
                 idf = np.log(len(self.documents) /
                              self.tdf[self.vocabulary[term_index]])
                 tf: float = 0
+                if doc_index not in self.__document_vectors:
+                    self.__document_vectors[doc_index] = []
                 if (self.vocabulary[term_index], doc_index) in self.tf:
                     tf = self.tf[(self.vocabulary[term_index], doc_index)]
-                self.__document_vectors[doc_index][term_index] = tf * idf
+                    self.__document_vectors[doc_index].append(
+                        (term_index, tf * idf))
 
     def generate_query_vector(self, query: str, lang: str = 'english'):
         """Return the query vector given a string query and a language for the stemming process
@@ -133,19 +137,39 @@ class Vector_Model(Model):
         vocabulary = self.vocabulary  # must be sorted
         # for each term in vocabulary calculate its tf in the query
         a = self.smooth_constant
-        query_vector = np.zeros(len(vocabulary))
+
+        query_vector: list[tuple[int, float]] = []
         for term_index in range(len(vocabulary)):
-            if vocabulary[term_index] in tf:
+            if vocabulary[term_index] in tf:  # if the term of the vocabulary is in the query
                 document_length = len(self.documents)
                 term_document_frequency = self.tdf[vocabulary[term_index]]
-                query_vector[term_index] = (
-                    a + (1 + a) * tf[vocabulary[term_index]]) * np.log(document_length / term_document_frequency)
-            else:
-                query_vector[term_index] = 0
+                # query_vector.append((term_index,a + (1 + a) * tf[vocabulary[term_index]]) * np.log(document_length / term_document_frequency))
+                query_vector.append((term_index, (a + (1 - a) * tf[vocabulary[term_index]]) * math.log(
+                    document_length / term_document_frequency)))
         return query_vector
 
-    def similitud(self, vector1: np.ndarray, vector2: np.ndarray) -> float:
-        return (np.dot(vector1, vector2) + 1) / (np.linalg.norm(vector1) * np.linalg.norm(vector2) + 1)
+    def similitud(self, vector1: list[tuple[int, float]], vector2: list[tuple[int, float]]) -> float:
+        """Calculate the similitud between two vectors
+
+        Args:
+            vector1 (list[tuple[int,float]]): A list of tuples (term_index, tf * idf)
+            vector2 (list[tuple[int,float]]): A list of tuples (term_index, tf * idf)
+
+        Returns:
+            float: The similitud between the two vectors
+        """
+        dot_product = 0
+        for i in range(len(vector1)):
+            for j in range(len(vector2)):
+                if vector1[i][0] == vector2[j][0]:
+                    dot_product += vector1[i][1] * vector2[j][1]
+                    break
+        pow: float = 1/len(self.vocabulary)
+        norm: float = math.pow(sum([vector1[i][1] ** 2 for i in range(len(vector1))]),
+                               pow) * math.pow(sum([vector2[i][1] ** 2 for i in range(len(vector2))]), pow)
+        if norm == 0:
+            return 0
+        return dot_product / norm
 
     def get_ranking(self, query: str, first_n_results: int, lang: str = 'english'):
         self.generate_document_vectors()
@@ -156,5 +180,6 @@ class Vector_Model(Model):
             doc_vector = self.__document_vectors[index]
             sim = self.similitud(doc_vector, query_vector)
             doc_rank.append((sim, index))
-        self.last_ranking = sorted(doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
+        self.last_ranking = sorted(
+            doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
         return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]
