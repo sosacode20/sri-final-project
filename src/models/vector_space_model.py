@@ -10,7 +10,7 @@ class Vector_Model(Model):
     def __init__(self, text_processor: Callable[[str, str], list[str]]):
         super().__init__(text_processor)
         # TODO: Store this in a binary tree to remove ordering... for now it is an ordered list
-        self.vocabulary = []
+        self.vocabulary:list[str] = []
         """
         This is the set of all words in the collection of documents
         """
@@ -22,16 +22,19 @@ class Vector_Model(Model):
         """
         This is the amount of documents in which the term is present
         """
-        self.smooth_constant = 0.6
+        self.smooth_constant:float = 0.6
         """
         This is the smooth constant for the query formula
         """
         # bool to know when is necessary to recalculate the weights
         self.__document_vector_dirty = False
+        """This is a property to know when is necessary to recalculate the document vectors
+        """
         self.__document_vectors: dict[int, np.ndarray] = {}
+        """This is the vector 
+        """
         # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
         self.last_ranking: list[tuple[float, int]] = []
-        self.vocabulary_size = 0
 
     def get_model_name(self):
         return "Vector Space Model"
@@ -101,8 +104,6 @@ class Vector_Model(Model):
         # Create the vocabulary sorted
         self.vocabulary = sorted([term for term in self.tdf])
         
-        print(self.vocabulary)
-
         doc_indexes = [*self.documents.keys()]
         # generate the __document_vectors as a dictionary where the key is the document_id and the value is an ndarray of dimension len(vocabulary)
         self.__document_vectors = {doc_index: np.zeros(len(self.vocabulary)) for doc_index in doc_indexes}
