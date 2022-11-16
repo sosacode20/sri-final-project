@@ -26,8 +26,9 @@ class IRS:
         if model.get_model_name() in self.models:
             raise Exception(
                 f"A model with the same name as '{model.get_model_name()}' already exists in the system")
+        if self.storage.model_exists(model.get_model_name()):
+            model = self.storage.load_model(model.get_model_name())
         self.models[model.get_model_name()] = model
-        self.storage.create_storage_path(model.get_model_name())
 
     def list_models(self) -> list[str]:
         """Returns the name of the models loaded for the system
@@ -82,5 +83,8 @@ class IRS:
         if model_name not in self.models:
             raise Exception(f'The model with name {model_name} it\'s not loaded in the system')
         model = self.models[model_name]
-        return [x.doc_name for x in model.get_ranking(query, first_n_results)]
+        return [(doc.doc_id, doc.doc_body) for doc in model.get_ranking(query, first_n_results)]
 
+    def save(self):
+        for model in self.models.values():
+            self.storage.save_model(model.get_model_name(), model)
