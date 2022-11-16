@@ -1,7 +1,7 @@
-from model import Model
+from src.model import Model
 from typing import Callable
 # from ..document import Document
-from document import Document
+from src.document import Document
 import numpy as np
 
 
@@ -101,7 +101,7 @@ class Vector_Model(Model):
         # Create the vocabulary sorted
         self.vocabulary = sorted([term for term in self.tdf])
         
-        print(self.vocabulary)
+        # print(self.vocabulary)
 
         doc_indexes = [*self.documents.keys()]
         # generate the __document_vectors as a dictionary where the key is the document_id and the value is an ndarray of dimension len(vocabulary)
