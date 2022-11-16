@@ -7,6 +7,9 @@ from parser import CranParser
 storage = Storage()
 
 irs_instance = irs.IRS(storage)
+
+open()
+
 doc1 = document.Document(1,
                          "Alicia in Wonderlans",
                          "Alicia was a Silly girl who run away from home to a fantasy world",
@@ -20,8 +23,8 @@ doc2 = document.Document(2,
                          "english")
 
 vector_model = vector_space_model.Vector_Model(utils.processing_text)
-# vector_model.add_document(doc1)
-# vector_model.add_document(doc2)
+vector_model.add_document(doc1)
+vector_model.add_document(doc2)
 cran = CranParser(utils.processing_text)
 irs_instance.add_model(vector_model)
 irs_instance.add_parser(cran)
@@ -29,4 +32,6 @@ irs_instance.add_document_collection("./data", "Cran", "Vector Space Model")
 
 query = 'flow past'
 ranking = vector_model.get_ranking(query, 5)
-print(ranking)
+
+for doc in ranking:
+    print(doc)

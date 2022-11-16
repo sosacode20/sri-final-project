@@ -102,8 +102,8 @@ class Vector_Model(Model):
                 idf = np.log(len(self.documents) /
                              self.tdf[self.vocabulary[term_index]])
                 tf = 0
-                if (self.vocabulary[term_index], doc_index) in self.tf:
-                    tf = self.tf[(self.vocabulary[term_index], doc_index)]
+                if (self.vocabulary[term_index], doc_index + 1) in self.tf:
+                    tf = self.tf[(self.vocabulary[term_index], doc_index + 1)]
                 self.__document_vectors[doc_index, term_index] = tf * idf
 
     def generate_query_vector(self, query: str, lang: str = 'english'):
@@ -135,7 +135,11 @@ class Vector_Model(Model):
     def similitud(self, vector1: np.ndarray, vector2: np.ndarray):
         # numpy dot product
         # In here was an error: invalid value encountered in double_scalars
-        return np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
+        numerator = np.dot(vector1, vector2)
+        denominator = np.linalg.norm(vector1) * np.linalg.norm(vector2)
+        division = numerator / denominator
+        return division
+        # return np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
 
     def get_ranking(self, query: str, first_n_results: int, lang: str = 'english'):
         self.generate_document_vectors()
@@ -145,6 +149,6 @@ class Vector_Model(Model):
             doc_vector = self.__document_vectors[i]
             sim = self.similitud(doc_vector, query_vector)
             doc_rank.append((sim, i))
-        self.last_ranking = sorted(doc_rank, key=lambda x: x[0])
+        self.last_ranking = sorted(doc_rank, reverse=True)
         # In the return was an error: Key error -> I don't know wy 'Key error' when last_ranking it's not a dictionary
-        return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]
+        return [self.documents[x[1] + 1] for x in self.last_ranking[:first_n_results]]
