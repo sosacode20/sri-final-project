@@ -1,7 +1,7 @@
-from model import Model
+from src.model import Model
 from typing import Callable
 # from ..document import Document
-from document import Document
+from src.document import Document
 import numpy as np
 import math
 
@@ -102,7 +102,7 @@ class Vector_Model(Model):
         self.__document_vector_dirty = False
 
         self.vocabulary = sorted([term for term in self.tdf])
-
+        
         doc_indexes = [*self.documents.keys()]
         for doc_index in doc_indexes:
             for term_index in range(len(self.vocabulary)):

@@ -1,8 +1,8 @@
-from model import Model
-from storage import Storage
-from parser import Parser
-from utils import get_all_files_with_extension
-from document import Document
+from src.model import Model
+from src.storage import Storage
+from src.parser import Parser
+from src.utils import get_all_files_with_extension
+from src.document import Document
 
 class IRS:
     """This class has the propose of orchestrate the IRS process.

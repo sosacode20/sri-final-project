@@ -1,4 +1,4 @@
-from document import Document
+from src.document import Document
 from typing import Callable
 from io import TextIOWrapper
 
