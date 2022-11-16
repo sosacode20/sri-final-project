@@ -1,6 +1,5 @@
-# from ..model import Model
-from ..model import Model
-from ..irs import IRS
+from model import Model
+from typing import Callable
 # from ..document import Document
 from document import Document
 import numpy as np
@@ -8,26 +7,42 @@ import numpy as np
 
 class Vector_Model(Model):
 
-    def __init__(self, irs: IRS, smooth_constant: float):
-        super().__init__(irs)
-        self.documents: dict[int, Document] = {}
+    def __init__(self, text_processor: Callable[[str, str], list[str]]):
+        super().__init__(text_processor)
         # TODO: Store this in a binary tree to remove ordering... for now it is an ordered list
         self.vocabulary = []
-        # Dictionary where the key is a tuple (term_str, doc_index) and the value is the tf of the term in the document
+        """
+        This is the set of all words in the collection of documents
+        """
         self.tf: dict[tuple[str, int], float] = {}
+        """This is the relative frequency of a token in a document. 
+        Dictionary where the key is a tuple (term_str, doc_index) and the value is the tf of the term in the document"""
         # Dictionary where the key is a term and the value is the frequency of the term in the collection of documents
         self.tdf: dict[str, int] = {}
-        self.smooth_constant = smooth_constant
-        # Dictionary where the key is an int and the value is a ndarray of floats
-        # TODO: Change the annotation for the type of the value to an ndarray of floats
-        # self.tf_idf : dict[int, np.ndarray] = {}
-        # TODO: Refactor this in a way that is a dirty property for knowing when to recalculate the vectors
-        self.__document_vectors = np.zeros((1,))
-        self.__document_vector_dirty = True
-        self.last_ranking: list[tuple[float, int]] = [] # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
+        """
+        This is the amount of documents in which the term is present
+        """
+        self.smooth_constant = 0.6
+        """
+        This is the smooth constant for the query formula
+        """
+        # bool to know when is necessary to recalculate the weights
+        self.__document_vector_dirty = False
+        self.__document_vectors: dict[int, np.ndarray] = {}
+        # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
+        self.last_ranking: list[tuple[float, int]] = []
+        self.vocabulary_size = 0
 
     def get_model_name(self):
         return "Vector Space Model"
+
+    def set_smooth_constant(self, smooth: float):
+        """This method is for setting the smooth constant for the query formula
+
+        Args:
+            smooth (float): Smooth Constant
+        """
+        self.smooth_constant = max(0.1, min(1, smooth))
 
     def add_document(self, document: Document):
         # Process all word tokens of the document
@@ -50,7 +65,6 @@ class Vector_Model(Model):
             else:
                 self.tdf[token] = 1
             self.tf[(token, id)] = term_frequency[token]
-        # TODO: update the weights in each document vector
 
     def __get_tf(self, text: list[str]) -> dict[str, float]:
         """Generate the normalized term frequency of a text as a dictionary
@@ -85,16 +99,23 @@ class Vector_Model(Model):
             return
         self.__document_vector_dirty = False
         # Create the vocabulary sorted
-        self.vocabulary = sorted(self.tdf.keys())
-        self.__document_vectors = np.zeros(
-            (len(self.documents), len(self.vocabulary)))
-        for doc_index in range(len(self.documents)):
+        self.vocabulary = sorted([term for term in self.tdf])
+        
+        print(self.vocabulary)
+
+        doc_indexes = [*self.documents.keys()]
+        # generate the __document_vectors as a dictionary where the key is the document_id and the value is an ndarray of dimension len(vocabulary)
+        self.__document_vectors = {doc_index: np.zeros(len(self.vocabulary)) for doc_index in doc_indexes}
+
+        for doc_index in doc_indexes:
             for term_index in range(len(self.vocabulary)):
                 # term = self.vocabulary[j]
                 idf = np.log(len(self.documents) /
                              self.tdf[self.vocabulary[term_index]])
-                tf = self.tf[(self.vocabulary[term_index], doc_index)]
-                self.__document_vectors[doc_index, term_index] = tf * idf
+                tf: float = 0
+                if (self.vocabulary[term_index], doc_index) in self.tf:
+                    tf = self.tf[(self.vocabulary[term_index], doc_index)]
+                self.__document_vectors[doc_index][term_index] = tf * idf
 
     def generate_query_vector(self, query: str, lang: str = 'english'):
         """Return the query vector given a string query and a language for the stemming process
@@ -106,12 +127,12 @@ class Vector_Model(Model):
         Returns:
             NDArray[float64]: A numpy array representing the query vector
         """
-        tokenized_query = self.irs.processing_text(query, lang)
+        tokenized_query = self.text_processor(query, lang)
         tf = self.__get_tf(tokenized_query)
         vocabulary = self.vocabulary  # must be sorted
         # for each term in vocabulary calculate its tf in the query
         a = self.smooth_constant
-        query_vector = np.zeros((len(vocabulary),))
+        query_vector = np.zeros(len(vocabulary))
         for term_index in range(len(vocabulary)):
             if vocabulary[term_index] in tf:
                 document_length = len(self.documents)
@@ -124,16 +145,19 @@ class Vector_Model(Model):
 
     def similitud(self, vector1: np.ndarray, vector2: np.ndarray):
         # numpy dot product
+        # In here was an error: invalid value encountered in double_scalars
         return np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
 
-    def get_ranking(self, query: str, lang: str = 'english'):
+    def get_ranking(self, query: str, first_n_results: int, lang: str = 'english'):
         self.generate_document_vectors()
         query_vector = self.generate_query_vector(query, lang)
         doc_rank: list[tuple[float, int]] = []
-        for i in range(len(self.documents)):
-            doc_vector = self.__document_vectors[i]
+        doc_indexes = [*self.documents.keys()]
+        for index in doc_indexes:
+            doc_vector = self.__document_vectors[index]
             sim = self.similitud(doc_vector, query_vector)
-            doc_rank.append((sim, i))
-        self.last_ranking = sorted(doc_rank, key = lambda x : x[0])
-        return self.last_ranking
-
+            doc_rank.append((sim, index))
+        self.last_ranking = sorted(doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
+        # In the return was an error: Key error -> I don't know wy 'Key error' when last_ranking it's not a dictionary
+        #[ ]: Mira aqui x[1] = 0, pero documents empieza a indexar en 1 
+        return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]
