@@ -20,13 +20,15 @@ doc2 = document.Document(2,
                          "english")
 
 vector_model = vector_space_model.Vector_Model(utils.processing_text)
-# vector_model.add_document(doc1)
-# vector_model.add_document(doc2)
+vector_model.add_document(doc1)
+vector_model.add_document(doc2)
+# pera que eso lo cambio yo
+# tengo que agregar un metodo rapidito a IRS para agregar documentos independientes
 cran = CranParser(utils.processing_text)
 irs_instance.add_model(vector_model)
-irs_instance.add_parser(cran)
-irs_instance.add_document_collection("./data", "Cran", "Vector Space Model")
+# irs_instance.add_parser(cran)
+# irs_instance.add_document_collection("./data", "Cran", "Vector Space Model")
 
 query = 'flow past'
 ranking = vector_model.get_ranking(query, 5)
-print(ranking)
+print([doc.doc_name for doc in ranking])

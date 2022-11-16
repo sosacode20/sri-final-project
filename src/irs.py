@@ -60,6 +60,10 @@ class IRS:
         """
         return sorted(self.parsers.keys())
 
+    def add_document(self, document:Document):
+        for model in self.models.values():
+            model.add_document(document)
+
     def add_document_collection(self, path:str, parser_name:str, model_name:str):
         if parser_name not in self.parsers:
             raise Exception(f'The parser with name {parser_name} it\'s not loaded in the system')
