@@ -77,15 +77,6 @@ class IRS:
                 documents = parser.parse(file)
                 for document in documents:
                     model.add_document(document)
-                # match document:
-                #     case Document(_,_,_,_,_):
-                #         model.add_document(document)
-                #     case [Document(_,_,_,_,_), *rest]:
-                #         for doc in document:
-                #             model.add_document(doc)
-                #     case None:
-                #         print(f'Error parsing file {file_path}')
-                # model.add_document(document)
 
     def get_ranking(self, query:str, model_name:str, first_n_results:int):
         if model_name not in self.models:

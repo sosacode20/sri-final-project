@@ -143,10 +143,10 @@ class Vector_Model(Model):
                 query_vector[term_index] = 0
         return query_vector
 
-    def similitud(self, vector1: np.ndarray, vector2: np.ndarray):
+    def similitud(self, vector1: np.ndarray, vector2: np.ndarray) -> float:
         # numpy dot product
         # In here was an error: invalid value encountered in double_scalars
-        return np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
+        return (np.dot(vector1, vector2) + 1) / (np.linalg.norm(vector1) * np.linalg.norm(vector2) + 1)
 
     def get_ranking(self, query: str, first_n_results: int, lang: str = 'english'):
         self.generate_document_vectors()
