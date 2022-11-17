@@ -10,8 +10,6 @@ class Vector_Model(Model):
 
     def __init__(self, text_processor: Callable[[str, str], list[str]]):
         super().__init__(text_processor)
-        # TODO: Store this in a binary tree to remove ordering... for now it is an ordered list
-        self.vocabulary: list[str] = []
         """
         This is the set of all words in the collection of documents
         """
@@ -124,7 +122,6 @@ class Vector_Model(Model):
         """
         tokenized_query = self.text_processor(query, lang)
         tf = self.__get_tf(tokenized_query)
-        vocabulary = self.vocabulary  # must be sorted
         # for each term in vocabulary calculate its tf in the query
         a = self.smooth_constant
 

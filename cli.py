@@ -42,14 +42,17 @@ def main():
                 print("La consulta no puede estar vacía.")
                 continue
             case _:
-                print("Procesando consulta...")
+                print("Procesando consulta...\n")
+                print('-----------------------------------------------------')
+                print('-----------------------------------------------------\n')
         start_time = time.time()
         ranking = irs_instance.get_ranking(query, vector_model.get_model_name(), 5)
         for doc in ranking:
             print(f'Document ID: {doc[0]}\nDocument Name: {doc[1]}\n')
         end_time = time.time()
-        print('\nThe ranking took {0} seconds to be generated\n\n'.format(end_time - start_time))
-        # print(time_convert(end_time - start_time))
+        print('The ranking took {0} seconds to be generated\n\n'.format(end_time - start_time))
+        print('-----------------------------------------------------')
+        print('-----------------------------------------------------\n')
 
     irs_instance.save()
 
