@@ -66,6 +66,17 @@ class IRS:
             model.add_document(document)
 
     def add_document_collection(self, path:str, parser_name:str, model_name:str):
+        """Adds a collection of documents to the system
+
+        Args:
+            path (str): This is the root path from where to start the search for files that the parser given can parse
+            parser_name (str): The name of the parser in the system that will parse the collections
+            model_name (str): The name of the model in the system that will index the documents
+
+        Raises:
+            Exception: If the parser is not in the system
+            Exception: If the model is not in the system
+        """
         if parser_name not in self.parsers:
             raise Exception(f'The parser with name {parser_name} it\'s not loaded in the system')
         if model_name not in self.models:
