@@ -5,7 +5,7 @@ from utils import get_all_files_with_extension
 from document import Document
 
 class IRS:
-    """This class has the propose of orchestrate the IRS process.
+    """This class has the purpose of orchestrate the IRS process.
     """
 
     def __init__(self, storage: Storage):

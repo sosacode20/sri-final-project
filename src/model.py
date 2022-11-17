@@ -10,9 +10,6 @@ class Model:
     def get_model_name(self) -> str:
         return self.__class__.__name__
 
-    def add_documents(self, documents: list[Document]):
-        pass
-
     def add_document(self, document: Document):
         """This method index the document according to an specific implementation of a model
 
