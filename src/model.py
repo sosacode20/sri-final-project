@@ -4,7 +4,7 @@ from typing import Callable
 # TODO: Create a factory for creating models
 class Model:
     def __init__(self, text_processor: Callable[[str, str], list[str]]):
-        self.documents: dict[int, Document] = {}
+        self.documents: list[Document] = []
         self.text_processor = text_processor
 
     def get_model_name(self) -> str:
@@ -32,4 +32,4 @@ class Model:
         Returns:
             list[Document]: A list of documents sorted by relevance
         """
-        return [x for x in self.documents.values()]
+        return [x for x in self.documents]
