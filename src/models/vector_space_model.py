@@ -16,21 +16,24 @@ class Vector_Model(Model):
         This is the set of all words in the collection of documents
         """
         self.tf: dict[tuple[str, int], float] = {}
-        """This is the relative frequency of a token in a document. 
+        """
+        This is the relative frequency of a token in a document. 
         Dictionary where the key is a tuple (term_str, doc_index) and the value is the tf of the term in the document"""
-        self.tdf: dict[str, int] = {}
+        self.df: dict[str, int] = {}
         """
         This is the amount of documents in which the term is present
         """
-        self.smooth_constant: float = 0.6
+        self.smooth_constant: float = 0.5
         """
         This is the smooth constant for the query formula
         """
-        self.__document_vector_dirty = False
-        """This is a property to know when is necessary to recalculate the document vectors
+        self.document_vector_dirty = False
         """
-        self.__document_vectors: dict[int, list[tuple[int, float]]] = {}
-        """This is the dictionary where the key is the document_id and the value is a list of tuples (term_index, tf * idf)
+        This is a property to know when is necessary to recalculate the document vectors
+        """
+        self.document_vectors: list[list[tuple[str, float]]] = []
+        """
+        This is the dictionary where the key is the document_id and the value is a list of tuples (term_index, tf * idf)
         """
         # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
         self.last_ranking: list[tuple[float, int]] = []
@@ -47,14 +50,9 @@ class Vector_Model(Model):
         self.smooth_constant = max(0.1, min(1, smooth))
 
     def add_document(self, document: Document):
-        # Process all word tokens of the document
-        id = document.get_doc_id()
-        if id in self.documents:
-            raise Exception(
-                "The document is already in the collection of documents")
         # tell the model that need to recalculate the vectors of documents
-        self.__document_vector_dirty = True
-        self.documents[id] = document
+        self.document_vector_dirty = True
+        self.documents.append(document)
         title = document.doc_normalized_name
         body = document.doc_normalized_body
         text = title + body
@@ -62,11 +60,11 @@ class Vector_Model(Model):
         # Add the document to the list of documents
         # Update the amount of documents in which the term is
         for token in term_frequency:
-            if token in self.tdf:
-                self.tdf[token] += 1
+            if token in self.df:
+                self.df[token] += 1
             else:
-                self.tdf[token] = 1
-            self.tf[(token, id)] = term_frequency[token]
+                self.df[token] = 1
+            self.tf[(token, len(self.documents) - 1)] = term_frequency[token]
 
     def __get_tf(self, text: list[str]) -> dict[str, float]:
         """Generate the normalized term frequency of a text as a dictionary
@@ -97,25 +95,22 @@ class Vector_Model(Model):
         Returns:
             None: The documents vector are calculated here and stored in the model for later use
         """
-        if not self.__document_vector_dirty:  # If the vectors are already calculated there is no need for recalculation
+        if not self.document_vector_dirty:  # If the vectors are already calculated there is no need for recalculation
             return
-        self.__document_vector_dirty = False
 
-        self.vocabulary = sorted([term for term in self.tdf])
-        
-        doc_indexes = [*self.documents.keys()]
-        for doc_index in doc_indexes:
-            for term_index in range(len(self.vocabulary)):
-                # term = self.vocabulary[j]
-                idf = np.log(len(self.documents) /
-                             self.tdf[self.vocabulary[term_index]])
+        self.document_vector_dirty = False
+        self.document_vectors = []
+
+        for doc_index, doc in enumerate(self.documents):
+            self.document_vectors.append([])
+            for term in (doc.doc_normalized_name + doc.doc_normalized_body):
+                idf: float = math.log(len(self.documents) /
+                             self.df[term])
                 tf: float = 0
-                if doc_index not in self.__document_vectors:
-                    self.__document_vectors[doc_index] = []
-                if (self.vocabulary[term_index], doc_index) in self.tf:
-                    tf = self.tf[(self.vocabulary[term_index], doc_index)]
-                    self.__document_vectors[doc_index].append(
-                        (term_index, tf * idf))
+                if (term, doc_index) in self.tf:
+                    tf = self.tf[(term, doc_index)]
+                    self.document_vectors[doc_index].append(
+                        (term, tf * idf))
 
     def generate_query_vector(self, query: str, lang: str = 'english'):
         """Return the query vector given a string query and a language for the stemming process
@@ -133,17 +128,17 @@ class Vector_Model(Model):
         # for each term in vocabulary calculate its tf in the query
         a = self.smooth_constant
 
-        query_vector: list[tuple[int, float]] = []
-        for term_index in range(len(vocabulary)):
-            if vocabulary[term_index] in tf:  # if the term of the vocabulary is in the query
+        query_vector: list[tuple[str, float]] = []
+        for term in tokenized_query:
+            if term in self.df:  # if the term of the query is in the vocabulary
                 document_length = len(self.documents)
-                term_document_frequency = self.tdf[vocabulary[term_index]]
+                term_document_frequency = self.df[term]
                 # query_vector.append((term_index,a + (1 + a) * tf[vocabulary[term_index]]) * np.log(document_length / term_document_frequency))
-                query_vector.append((term_index, (a + (1 - a) * tf[vocabulary[term_index]]) * math.log(
+                query_vector.append((term, (a + (1 - a) * tf[term]) * math.log(
                     document_length / term_document_frequency)))
         return query_vector
 
-    def similitud(self, vector1: list[tuple[int, float]], vector2: list[tuple[int, float]]) -> float:
+    def similitud(self, vector1: list[tuple[str, float]], vector2: list[tuple[str, float]]) -> float:
         """Calculate the similitud between two vectors
 
         Args:
@@ -169,9 +164,8 @@ class Vector_Model(Model):
         self.generate_document_vectors()
         query_vector = self.generate_query_vector(query, lang)
         doc_rank: list[tuple[float, int]] = []
-        doc_indexes = [*self.documents.keys()]
-        for index in doc_indexes:
-            doc_vector = self.__document_vectors[index]
+        for index, _ in enumerate(self.documents):
+            doc_vector = self.document_vectors[index]
             sim = self.similitud(doc_vector, query_vector)
             doc_rank.append((sim, index))
         self.last_ranking = sorted(
