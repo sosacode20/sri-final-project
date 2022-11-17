@@ -27,6 +27,21 @@ Resumen
 El presente trabajo corresponde con la pre-entrega del proyecto final de la asignatura de Sistemas de Recuperación, y se tiene como objetivo implementar un Modelo de Recuperación a elección personal indexando 1 de las 3 colecciones de pruebas ofrecidas por el colectivo de profesores.
 Nuestro equipo se decidió por implementar el Modelo Vectorial Clásico dado en conferencias usando como _corpus_ la colección **Cran** que contiene 1400 documentos y en el resto del documento detallaremos las decisiones de implementación tomadas hasta ahora
 
+## Como ejecutar el proyecto
+
+Nosotros consideramos que deberíamos comenzar por aquí el informe debido a que antes de restarles tiempo leyendo lo próximo sería interesante que realmente vean que esto está funcional.
+
+Para ejecutar el proyecto es necesario tener instalado las siguientes librerías de python:
+- nltk
+
+Con `nltk` necesitarán descargar unos datasets que cuando intenten ejecutar el proyecto los **errores** les dirán como instalarlos. En un futuro esto lo plasmaremos en el informe
+
+Entonces, la forma de ejecutar el proyecto es la siguiente (dentro de la raíz del proyecto):
+
+```shell
+python cli.py
+```
+
 ## Arquitectura actual del proyecto
 
 La arquitectura actual del proyecto está pensada con el objetivo de poder implementar de forma sencilla los 3 Modelos de Recuperación de Información que se piden como requisito para la entrega final. Por esto tuvimos que pensar en una buena jerarquía de clases para lograr la flexibilidad deseada
