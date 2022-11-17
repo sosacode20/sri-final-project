@@ -1,5 +1,5 @@
 import os
-from model import Model
+from src.model import Model
 import pickle
 
 class Storage:

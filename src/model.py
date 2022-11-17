@@ -1,6 +1,5 @@
 from src.document import Document
 from typing import Callable
-from src.storage import Storage
 
 # TODO: Create a factory for creating models
 class Model:
