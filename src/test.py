@@ -1,3 +1,5 @@
+# The purpose of this file is for quick testing. This is not part of the solution
+
 import irs, document
 from models import vector_space_model
 from storage import Storage

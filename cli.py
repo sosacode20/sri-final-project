@@ -23,7 +23,6 @@ def main():
     irs_instance = irs.IRS(storage)
     irs_instance.add_model(vector_model)
     irs_instance.add_parser(cran)
-    # irs_instance.add_document_collection("./data", "Cran", "Vector Space Model")
 
     print(chr(27) + "[2J")
 
@@ -32,7 +31,7 @@ def main():
         query = input()
         ranking = irs_instance.get_ranking(query, vector_model.get_model_name(), 5)
         for doc in ranking:
-            print(f'DOC_ID:{doc[0]}\nDOC_NAME:{doc[1]}\n')
+            print(f'Document ID: {doc[0]}\nDocument Name: {doc[1]}\n')
         end_time = time.time()
         print(time_convert(end_time - start_time))
         print("Introduzca 'q' para terminar la ejecución o cualquier otra tecla para realizar otra consulta:")
