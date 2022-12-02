@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pkl
 
 # C extensions
 *.so
@@ -109,6 +110,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+py_env/
 
 # Spyder project settings
 .spyderproject
@@ -127,3 +129,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Notes folder
+Notes/
+clustering algorithms/
+
+# visual studio code files
+.vscode/
+
+# Datasets information
+TestQueries/
