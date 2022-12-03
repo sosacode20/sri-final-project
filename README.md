@@ -10,12 +10,25 @@ If you need more info about the implementation done here please refer to this [f
 
 ![Arquitectura Inicial](Project-architecture.excalidraw.svg)
 
-## Lista de paquetes de python necesarios para el proyecto
+## Installing Dependencies
 
-- numpy
-- matplotlib
-- nltk
-- jupyter
+### Without Docker
+
+Before running the project is necessary that you install all the dependencies of the project. The way to do this is running the following commands in the shell.
+
+**NOTE:** We recommend that you create a custom environment before installing the python dependencies
+
+```shell
+$ pip install -r ./requirements.txt
+$ python install.py
+```
+
+### With Docker
+
+How to build
+```shell
+$ docker build -t irs-final-project .
+```
 
 ## How to run the Project
 
@@ -27,6 +40,16 @@ python cli.py
 ```
 
 Note: This *cli* is simple because is not the way we want to interact with the user. In the future previous to deliver to our teachers we well create an interface in flutter that will interact with a server created in Django (this decision may change).
+
+### With docker
+
+If you build the docker image as we told in the *installing dependencies* section, you can run it executing the following command
+
+```shell
+$ docker run -it --name irs irs-final-project:latest bash
+```
+
+**NOTE:** If you have podman instead of docker just substitute `docker` by `podman` in all the commands where you find it
 
 ## Forking
 
