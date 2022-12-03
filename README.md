@@ -10,13 +10,6 @@ If you need more info about the implementation done here please refer to this [f
 
 ![Arquitectura Inicial](Project-architecture.excalidraw.svg)
 
-## Lista de paquetes de python necesarios para el proyecto
-
-- numpy
-- matplotlib
-- nltk
-- jupyter
-
 ## Installing Dependencies
 
 ### Without Docker
