@@ -4,7 +4,7 @@ import irs, document
 from models import vector_space_model
 from storage import Storage
 import utils
-from parser import CranParser
+from irs_parser import CranParser
 
 storage = Storage()
 

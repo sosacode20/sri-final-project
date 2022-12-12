@@ -2,7 +2,7 @@ from src import irs, document
 from src.models import vector_space_model
 from src.storage import Storage
 from src import utils
-from src.parser import CranParser
+from src.irs_parser import CranParser
 import time
 
 def time_convert(sec):

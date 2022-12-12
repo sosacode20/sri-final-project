@@ -1,6 +1,6 @@
 from src.model import Model
 from src.storage import Storage
-from src.parser import Parser
+from src.irs_parser import Parser
 from src.utils import get_all_files_with_extension
 from src.document import Document
 
