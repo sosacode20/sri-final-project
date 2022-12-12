@@ -1,6 +1,5 @@
 from src.model import Model
 from typing import Callable
-# from ..document import Document
 from src.document import Document
 import numpy as np
 import math
@@ -36,7 +35,7 @@ class Vector_Model(Model):
         # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
         self.last_ranking: list[tuple[float, int]] = []
 
-    def get_model_name(self):
+    def get_name(self):
         return "Vector Space Model"
 
     def set_smooth_constant(self, smooth: float):

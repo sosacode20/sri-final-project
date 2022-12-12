@@ -21,7 +21,7 @@ queries = ['transition studies and skin friction measurements', 'combined effect
 
 for query in queries:
     print(f'\n\nThe query was: {query}\n\n---------------------------------------------------\n')
-    ranking = irs_instance.get_ranking(query, vector_model.get_model_name(), 10)
+    ranking = irs_instance.get_ranking(query, vector_model.get_name(), 10)
     for rank in ranking:
         print(f'\n{rank}\n')
 

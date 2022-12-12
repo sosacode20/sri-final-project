@@ -23,12 +23,12 @@ class IRS:
             Exception: If the model is already in the IRS
         """
         assert isinstance(model, Model)
-        if model.get_model_name() in self.models:
+        if model.get_name() in self.models:
             raise Exception(
-                f"A model with the same name as '{model.get_model_name()}' already exists in the system")
-        if self.storage.model_exists(model.get_model_name()):
-            model = self.storage.load_model(model.get_model_name())
-        self.models[model.get_model_name()] = model
+                f"A model with the same name as '{model.get_name()}' already exists in the system")
+        if self.storage.model_exists(model.get_name()):
+            model = self.storage.load_model(model.get_name())
+        self.models[model.get_name()] = model
 
     def list_models(self) -> list[str]:
         """Returns the name of the models loaded for the system
@@ -98,4 +98,4 @@ class IRS:
 
     def save(self):
         for model in self.models.values():
-            self.storage.save_model(model.get_model_name(), model)
+            self.storage.save_model(model.get_name(), model)

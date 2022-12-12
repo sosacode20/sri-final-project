@@ -46,7 +46,7 @@ def main():
                 print('-----------------------------------------------------')
                 print('-----------------------------------------------------\n')
         start_time = time.time()
-        ranking = irs_instance.get_ranking(query, vector_model.get_model_name(), 5)
+        ranking = irs_instance.get_ranking(query, vector_model.get_name(), 5)
         for doc in ranking:
             print(f'Document ID: {doc[0]}\nDocument Name: {doc[1]}\n')
         end_time = time.time()
