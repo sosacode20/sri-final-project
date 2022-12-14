@@ -25,7 +25,7 @@ class Probabilistic_Model(Model):
         """
 
     def get_model_name(self):
-        return "Probabilistic Model"
+        return "Probabilistic_Model"
 
     def add_document(self, document: Document):
         self.documents.append(document)

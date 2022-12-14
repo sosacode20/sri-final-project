@@ -22,12 +22,14 @@ def main():
     prob_model = probabilistic_model.Probabilistic_Model(utils.processing_text)
     cran = CranParser(utils.processing_text)
     irs_instance = irs.IRS(storage)
+
     # irs_instance.add_model(vector_model)
     irs_instance.add_model(prob_model)
+
     irs_instance.add_parser(cran)
-    # Uncomment the next line if the .pkl file is deleted and having the collection in the file './data'
+    ## Uncomment the next line if the .pkl file is deleted and having the collection in the file './data'
     # irs_instance.add_document_collection("./data", cran.get_pretty_name(), vector_model.get_model_name())
-    irs_instance.add_document_collection("./data", cran.get_pretty_name(), prob_model.get_model_name())
+    # irs_instance.add_document_collection("./data", cran.get_pretty_name(), prob_model.get_model_name())
     
     finish_loading_documents = time.time()
     print(chr(27) + "[2J")
