@@ -17,9 +17,9 @@ class Probabilistic_Model(Model):
         # This acts as a cache for storing the last ranking of a consult, this is in the case of handling result pages
         self.last_ranking: list[tuple[float, int]] = []
         
-        self.query_document_relevance: dict[tuple[set, int], dict[str, float]] = {}
+        self.query_document_relevance: dict[tuple[str, int], dict[str, float]] = {}
 
-        self.query_document_not_relevance: dict[tuple[set, int], dict[str, float]] = {}
+        self.query_document_not_relevance: dict[tuple[str, int], dict[str, float]] = {}
         """
         This contains the relevance of a query in a document
         """
@@ -53,9 +53,7 @@ class Probabilistic_Model(Model):
         return n_i / len(self.documents)
 
     def generate_query_vector(self, query: set, lang: str = 'english'):
-        tokenized_query = self.text_processor(query, lang)
-
-        return set(tokenized_query)
+        return self.text_processor(query, lang)
 
     def get_relevance(self, query, document_id, term) -> float:
         if (query, document_id) in self.query_document_relevance:
@@ -63,21 +61,22 @@ class Probabilistic_Model(Model):
             dnr = self.query_document_not_relevance[(query, document_id)][term]
             return (dr, dnr) 
 
-        self.dr = 0.5
-        self.dnr = self.get_term_frequency(term)
+        dr = 0.5
+        dnr = self.get_term_frequency(term)
 
-        self.query_document_relevance[(query, document_id)] = dr
-        self.query_document_not_relevance[(query, document_id)] = dnr
-        
+        self.query_document_relevance[(query, document_id)] = { term:dr }
+        self.query_document_not_relevance[(query, document_id)] = { term:dnr }
+
         return (dr, dnr)
 
-    def similarity(self, query: set[str], document: list[str]) -> float:
+    def similarity(self, raw_query:str, query: list[str], document: list[str], document_id: int) -> float:
         """Calculate the similarity between a query and a document"""
         similarity = 0
 
-        for common_term in query.intersection(document):
-            p_i, r_i = self.get_relevance(query, document, common_term)
-            similarity += math.log((p_i * (1 - r_i)) / (r_i * (1 - p_i)))
+        for common_term in query:
+            if common_term in document:
+                p_i, r_i = self.get_relevance(raw_query, document_id, common_term)
+                similarity += math.log((p_i * (1 - r_i)) / (r_i * (1 - p_i)))
 
         return (0 if similarity == 0 else math.log(similarity))
         return math.log(similarity)
@@ -87,7 +86,7 @@ class Probabilistic_Model(Model):
         doc_rank: list[tuple[float, int]] = []
         for index, _ in enumerate(self.documents):
             doc_vector = self.document_vectors[index]
-            sim = self.similarity(query_vector, doc_vector)
+            sim = self.similarity(query, query_vector, doc_vector, index)
             doc_rank.append((sim, index))
         self.last_ranking = sorted(
             doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
