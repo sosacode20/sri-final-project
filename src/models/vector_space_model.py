@@ -47,7 +47,7 @@ class Vector_Model(Model):
         self.smooth_constant = max(0.1, min(1, smooth))
 
     def add_document(self, document: Document):
-        # tell the model that need to recalculate the vectors of documents
+        # tell the model that needs to recalculate the vectors of documents
         self.document_vector_dirty = True
         self.documents.append(document)
         title = document.doc_normalized_name
@@ -72,8 +72,8 @@ class Vector_Model(Model):
         Returns:
             dict[str, int]: Dictionary where the key is a term and the value is the frequency of the term in the text
         """
-        tf: dict[str, float] = {
-        }  # Dictionary where the key is a term and the value is the frequency of the term in the document
+        tf: dict[str, float] = { }# Dictionary where the key is a term and the value is the frequency of the term in the document
+        
         max_frequency = 0  # The maximum frequency of a term in the document
         for token in text:
             if token in tf:
@@ -134,6 +134,7 @@ class Vector_Model(Model):
                     document_length / term_document_frequency)))
         return query_vector
 
+    # [ ]: se escribe similarity
     def similitud(self, vector1: list[tuple[str, float]], vector2: list[tuple[str, float]]) -> float:
         """Calculate the similitud between two vectors
 

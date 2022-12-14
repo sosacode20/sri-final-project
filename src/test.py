@@ -26,3 +26,4 @@ for query in queries:
         print(f'\n{rank}\n')
 
 irs_instance.save()
+

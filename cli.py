@@ -1,5 +1,5 @@
 from src import irs, document
-from src.models import vector_space_model
+from src.models import vector_space_model, probabilistic_model
 from src.storage import Storage
 from src import utils
 from src.irs_parser import CranParser
@@ -18,13 +18,16 @@ def main():
     start_time = time.time()
 
     storage = Storage()
-    vector_model = vector_space_model.Vector_Model(utils.processing_text)
+    # vector_model = vector_space_model.Vector_Model(utils.processing_text)
+    prob_model = probabilistic_model.Probabilistic_Model(utils.processing_text)
     cran = CranParser(utils.processing_text)
     irs_instance = irs.IRS(storage)
-    irs_instance.add_model(vector_model)
+    # irs_instance.add_model(vector_model)
+    irs_instance.add_model(prob_model)
     irs_instance.add_parser(cran)
     # Uncomment the next line if the .pkl file is deleted and having the collection in the file './data'
     # irs_instance.add_document_collection("./data", cran.get_pretty_name(), vector_model.get_model_name())
+    irs_instance.add_document_collection("./data", cran.get_pretty_name(), prob_model.get_model_name())
     
     finish_loading_documents = time.time()
     print(chr(27) + "[2J")
@@ -46,7 +49,8 @@ def main():
                 print('-----------------------------------------------------')
                 print('-----------------------------------------------------\n')
         start_time = time.time()
-        ranking = irs_instance.get_ranking(query, vector_model.get_name(), 5)
+        # ranking = irs_instance.get_ranking(query, vector_model.get_model_name(), 5)
+        ranking = irs_instance.get_ranking(query, prob_model.get_model_name(), 5)
         for doc in ranking:
             print(f'Document ID: {doc[0]}\nDocument Name: {doc[1]}\n')
         end_time = time.time()
