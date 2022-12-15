@@ -2,7 +2,7 @@ from src import irs, document
 from src.models import vector_space_model, probabilistic_model
 from src.storage import Storage
 from src import utils
-from src.irs_parser import CranParser
+from src.irs_parser import CranParser, ReutersParser
 import time
 
 def time_convert(sec):
@@ -14,22 +14,32 @@ def time_convert(sec):
 
 def main():
     print(chr(27) + "[2J")
-    print("Cargando la colección Cranfield de documentos...")
+    print("Cargando la colección de documentos...")
     start_time = time.time()
 
     storage = Storage()
+    ## Instantiating Models
     # vector_model = vector_space_model.Vector_Model(utils.processing_text)
     prob_model = probabilistic_model.Probabilistic_Model(utils.processing_text)
-    cran = CranParser(utils.processing_text)
+
+    ## Instantiating Parsers
+    reuter = ReutersParser(utils.processing_text)
+    # cran = CranParser(utils.processing_text)
+
     irs_instance = irs.IRS(storage)
 
+    ## Loading Models
     # irs_instance.add_model(vector_model)
     irs_instance.add_model(prob_model)
 
-    irs_instance.add_parser(cran)
+    ## Loading Parsers
+    # irs_instance.add_parser(cran)
+    irs_instance.add_parser(reuter)
+
     ## Uncomment the next line if the .pkl file is deleted and having the collection in the file './data'
     # irs_instance.add_document_collection("./data", cran.get_pretty_name(), vector_model.get_model_name())
     # irs_instance.add_document_collection("./data", cran.get_pretty_name(), prob_model.get_model_name())
+    irs_instance.add_document_collection("./data", reuter.get_pretty_name(), prob_model.get_model_name())
     
     finish_loading_documents = time.time()
     print(chr(27) + "[2J")
