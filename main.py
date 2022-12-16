@@ -108,7 +108,6 @@ def set_model_collection(
 def query(
     query: str = Query(default=..., title="Query", description="A query to be used by the retrieval system"),
     limit: int = Query(default=10, title="Limit", description="The number of documents from the ranking to be returned"),
-    #offset: int = Query(default=0, title="Offset", description="The number of documents from the ranking to be skipped"),
     model_name: ModelName = Query(default=..., title="Model", description="The model to be used for processing the query")
     ):
     query.strip()
@@ -124,11 +123,15 @@ def query(
     return documents
 
 #TODO: This does not work yet
-@app.get("/api/document/{id}", response_model=DocumentWithBody)
+@app.get("/api/document/{model_name}/{id}", response_model=DocumentWithBody)
 def get_document(
-    id: int = Path(..., title="Document ID", description="The ID of the document to be returned")):
-    document = irs_instance.get_document(id)
-    return DocumentWithBody(id=document[0], title=document[1], body=document[2])
+    id: int = Path(..., 
+     title="Document ID", description="The ID of the document to be returned"),
+    model_name: ModelName = Path(default=..., 
+     title="Model", description="The model to be used for processing the query")
+    ):
+    document = irs_instance.models[model_name].get_document_by_id(id)
+    return DocumentWithBody(id=document.doc_id, title=document.doc_id, body=document.doc_body)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
