@@ -22,7 +22,6 @@ app = FastAPI()
 #Initializing the application
 storage = Storage()
 irs_instance = IRS(storage)
-parser: Parser = None
 
 #Algo como esto puede que se puedan usa varias colecciones y modelos a la vez
 # class Query(BaseModel):

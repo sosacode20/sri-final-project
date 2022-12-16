@@ -13,7 +13,7 @@ class IRS:
         self.models: dict[str, Model] = {}
         self.parsers: dict[str, Parser] = {}
 
-    def add_model(self, model: Model):
+    def add_model(self, model: Model, load_cache: bool = False):
         """This method add a model to the IRS
 
         Args:
@@ -26,7 +26,7 @@ class IRS:
         if model.get_name() in self.models:
             raise Exception(
                 f"A model with the same name as '{model.get_name()}' already exists in the system")
-        if self.storage.model_exists(model.get_name()):
+        if self.storage.model_exists(model.get_name()) and load_cache:
             model = self.storage.load_model(model.get_name())
         self.models[model.get_name()] = model
 
