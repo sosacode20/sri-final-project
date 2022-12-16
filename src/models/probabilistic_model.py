@@ -24,7 +24,7 @@ class Probabilistic_Model(Model):
         This contains the relevance of a query in a document
         """
 
-    def get_model_name(self):
+    def get_name(self):
         return "Probabilistic_Model"
 
     def add_document(self, document: Document):
