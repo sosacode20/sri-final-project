@@ -81,7 +81,7 @@ class Probabilistic_Model(Model):
         return (0 if similarity == 0 else math.log(similarity))
         return math.log(similarity)
             
-    def get_ranking(self, query: str, first_n_results: int, lang: str = 'english') -> list[Document]:
+    def get_ranking(self, query: str, first_n_results: int, lang: str = 'english') -> list[tuple[Document, int]]:
         query_vector = self.generate_query_vector(query, lang)
         doc_rank: list[tuple[float, int]] = []
         for index, _ in enumerate(self.documents):
@@ -90,5 +90,5 @@ class Probabilistic_Model(Model):
             doc_rank.append((sim, index))
         self.last_ranking = sorted(
             doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
-        return [self.get_document_by_id(doc[1]) for doc in self.last_ranking[:first_n_results]]
+        return [(self.get_document_by_id(doc), rank) for rank, doc in self.last_ranking[:first_n_results]]
         return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]

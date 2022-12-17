@@ -94,8 +94,13 @@ class IRS:
         if model_name not in self.models:
             raise Exception(f'The model with name {model_name} it\'s not loaded in the system')
         model = self.models[model_name]
-        return [(doc, rank) for (doc, rank) in model.get_ranking(query, first_n_results)]
+        ranking = model.get_ranking(query, first_n_results)
+        return [(doc.doc_id, doc.doc_name, doc.doc_body, rank) for doc, rank in ranking ]
 
     def save(self):
         for model in self.models.values():
             self.storage.save_model(model.get_name(), model)
+
+    def clear(self):
+        self.models: dict[str, Model] = {}
+        self.parsers: dict[str, Parser] = {}
