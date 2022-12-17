@@ -90,6 +90,64 @@ class CranParser(Parser):
 
         return docs
 
+class NewsGroupParser(Parser):
+
+        # def _get_document(self, file):
+        #     text = ''
+        #     subject = ''
+        #     s = 1
+        #     while True:
+        #         line = file.readline()
+        #         if not line:
+        #             break
+        #         text += line
+        #         if s and line.split()[0] == 'Subject:':
+        #             s = 0
+        #             subject = ' '.join(line.split()[1:])
+        #     return [subject, text]
+    #Hasta aqui es la implementacion de aldair 
+
+    def __init__(
+        self, text_processor: Callable[[str, str], list[str]], lang: str = "english"
+    ):
+        super().__init__(text_processor, lang)
+
+    def get_pretty_name(self) -> str:
+        return "NewsGroup"
+
+    def get_extension_list(self):
+        return [""]
+
+    def parse(self, file: TextIOWrapper) -> list[Document]:
+        docs = []
+        doc_id = 0
+        text = ""
+        title = ""
+        in_text = 0
+        while True:
+            line = file.readline()
+            if len(line) > 0:
+                if line.find("<REUTERS") != -1:
+                    doc_id = int(line.split("NEWID=")[1].split('"')[1])
+                elif line.find("<TITLE>") != -1:
+                    title = line.split("<TITLE>")[1].split("</TITLE>")[0]
+                elif line.find("<BODY>") != -1:
+                    in_text = 1
+                    text += line.split("<BODY>")[1]
+                elif line.find("</BODY>") != -1:
+                    in_text = 0
+                    doc = Document(
+                        doc_id, title, text, self.text_processor, self.lang
+                    )
+                    docs.append(doc)
+                    text = ""
+                    title = ""
+                elif in_text:
+                    text += line
+            elif not line:
+                break
+        return docs
+
 class ReutersParser(Parser):
     def __init__(
         self, text_processor: Callable[[str, str], list[str]], lang: str = "english"

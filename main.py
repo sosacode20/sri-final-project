@@ -23,35 +23,18 @@ app = FastAPI()
 storage = Storage()
 irs_instance = IRS(storage)
 
-#Algo como esto puede que se puedan usa varias colecciones y modelos a la vez
-# class Query(BaseModel):
-#     query: str
-#     model: ModelName
-#     collection: CollectionName
-
 '''
 Application Workflow:
-[x] Initialize the IR System
- [x] Instantiate the storage
- [x] Instantiate the IRS module
 [x] User defines data collection // TODO: If theres enough time, implement 
 a way to receive the data collection directory
-[x] User defines model
  [x] Model is instantiated with text preprocessor // TODO: Discuss 
  if we should instantiate the model with the preprocessor
- [x] Parser is instantiated with text preprocessor
-[x] Finish IRS initialization
- [x] Add model to IRS
- [x] Add parser to IRS
 [x] Add collection to IRS // TODO: If this collection is already in 
 cache then it should be loaded from there (ask for cache format)
 
-Asynchronous functionalities:
-[ ] POST: Query
-[ ] GET: Documents
-[ ] GET: Collection and model selection // If theres already a different 
-collection/model selected then it should be replaced
-[ ] return some documents preview
+New Functionalities with front in mind
+[ ] Getting instantiated models
+[ ] 
 
 '''
 
