@@ -52,10 +52,11 @@ class CollectionName(str, Enum):
     reuter = "reuter"
     placeholder = "placeholder"
 
-class Document(BaseModel):
+class DocumentRank(BaseModel):
     id: int
     title: str
     body: str
+    rank: float
 
 '''
 #TODO: Divide this in two different endpoints
@@ -123,7 +124,7 @@ def get_selected_model():
     return selected_model
 
 #TODO: Return rating
-@app.get("/api/query", response_model = list[Document])
+@app.get("/api/query", response_model = list[DocumentRank])
 def make_query(
     query: str = Query(default=..., title="Query", description="A query to be used by the retrieval system", regex="^(?!\s*$).+"),
     limit: int = Query(default=10, title="Limit", description="The number of documents from the ranking to be returned"),
@@ -133,7 +134,7 @@ def make_query(
     query.strip()
     documents = []
     ranking = irs_instance.get_ranking(query, selected_model, limit)#TODO: add offset
-    return [Document(id=doc[0], title=doc[1], body=doc[2][: None if summary_len == -1 else summary_len]) for doc in ranking]
+    return [DocumentRank(id=doc[0], title=doc[1], body=doc[2][: None if summary_len == -1 else summary_len], rank = doc[3]) for doc in ranking]
 
     for doc in ranking:
         documents.append(Document(id=doc[0], title=doc[1], body=doc[3][: None if summary_len == -1 else summary_len]))

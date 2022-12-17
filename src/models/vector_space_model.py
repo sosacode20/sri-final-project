@@ -167,5 +167,5 @@ class Vector_Model(Model):
             doc_rank.append((sim, index))
         self.last_ranking = sorted(
             doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
-        return [self.get_document_by_id(doc[1]) for doc in self.last_ranking[:first_n_results]]
+        return [(self.get_document_by_id(doc), rank) for rank, doc in self.last_ranking[:first_n_results]]
         return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]
