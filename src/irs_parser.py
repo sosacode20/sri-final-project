@@ -48,6 +48,7 @@ class CranParser(Parser):
     def get_extension_list(self):
         return ["all.1400"]
 
+    #FIXME: Errors while files are not well formatted
     def parse(self, file: TextIOWrapper) -> list[Document]:
         docs = []
         doc_id = 0
