@@ -109,7 +109,7 @@ def get_document(
 
 @app.get("/api/model_options", response_model = list[str])
 def get_model_options():
-    return ["Vectorial Space Model", "Probabilistic Model"]
+    return ["Vector Space Model", "Probabilistic Model"]
 
 @app.get("/api/collection_options", response_model = list[str])
 def get_collection_options():
@@ -133,7 +133,7 @@ def make_query(
 ):
     query.strip()
     documents = []
-    ranking = irs_instance.get_ranking(query, selected_model, limit)#TODO: add offset
+    ranking = irs_instance.get_ranking(query, selected_model, limit, offset)#TODO: add offset
     return [DocumentRank(id=doc[0], title=doc[1], body=doc[2][: None if summary_len == -1 else summary_len], rank = doc[3]) for doc in ranking]
 
     for doc in ranking:

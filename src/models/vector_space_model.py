@@ -157,7 +157,7 @@ class Vector_Model(Model):
             return 0
         return dot_product / norm
 
-    def get_ranking(self, query: str, first_n_results: int, lang: str = 'english'):
+    def get_ranking(self, query: str, first_n_results: int, offset:int, lang: str = 'english'):
         self.generate_document_vectors()
         query_vector = self.generate_query_vector(query, lang)
         doc_rank: list[tuple[float, int]] = []
@@ -167,5 +167,5 @@ class Vector_Model(Model):
             doc_rank.append((sim, index))
         self.last_ranking = sorted(
             doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
-        return [(self.get_document_by_id(doc), rank) for rank, doc in self.last_ranking[:first_n_results]]
-        return [self.documents[x[1]] for x in self.last_ranking[:first_n_results]]
+        return [(self.get_document_by_id(doc), rank) for rank, doc in self.last_ranking[offset:offset + first_n_results]]
+        return [self.documents[x[1]] for x in self.last_ranking[offset:first_n_results]]

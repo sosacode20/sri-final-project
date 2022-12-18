@@ -90,11 +90,11 @@ class IRS:
                 for document in documents:
                     model.add_document(document)
 
-    def get_ranking(self, query:str, model_name:str, first_n_results:int) -> list[tuple[Document,float]]:
+    def get_ranking(self, query:str, model_name:str, first_n_results:int, offset:int) -> list[tuple[Document,float]]:
         if model_name not in self.models:
             raise Exception(f'The model with name {model_name} it\'s not loaded in the system')
         model = self.models[model_name]
-        ranking = model.get_ranking(query, first_n_results)
+        ranking = model.get_ranking(query, first_n_results, offset * first_n_results)
         return [(doc.doc_id, doc.doc_name, doc.doc_body, rank) for doc, rank in ranking ]
 
     def save(self):

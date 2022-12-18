@@ -18,7 +18,7 @@ class Model:
         """
         pass
 
-    def get_ranking(self, query:str, first_n_results:int, lang:str = 'english') -> list[tuple[Document, float]]:
+    def get_ranking(self, query:str, first_n_results:int, offset:int, lang:str = 'english') -> list[tuple[Document, float]]:
         """Given a query this method returns the first n more relevant results
 
         Args:
