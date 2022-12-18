@@ -42,6 +42,6 @@ class Model:
         else:
             return self._get_document_by_id(documents, id, start, mid - 1)
 
-    #TODO: remake this method with binary search
+    #FIXME: Like it is, it will probably give problems with Reuter collection
     def get_document_by_id(self, id:int) -> Document:
         return self._get_document_by_id(self.documents, id, 0, len(self.documents) - 1)
