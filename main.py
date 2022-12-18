@@ -48,8 +48,8 @@ class ModelName(str, Enum):
     placeholder = "placeholder"
 
 class CollectionName(str, Enum):
-    cran = "cran"
-    reuter = "reuter"
+    cran = "Cran"
+    reuter = "Reuters"
     placeholder = "placeholder"
 
 class DocumentRank(BaseModel):
@@ -123,7 +123,6 @@ def get_instantiated_models():
 def get_selected_model():
     return selected_model
 
-#TODO: Return rating
 @app.get("/api/query", response_model = list[DocumentRank])
 def make_query(
     query: str = Query(default=..., title="Query", description="A query to be used by the retrieval system", regex="^(?!\s*$).+"),
@@ -154,19 +153,17 @@ def select_model(
     else:
         return {"Error": "Invalid model selected"}
 
+    irs_instance.add_model(model)
+
+    loaded_collection_parsers = irs_instance.list_parsers()
     collection_parsers = []
     for collection in collection_list:
-        if collection == CollectionName.cran and collection not in irs_instance.list_parsers():
-            collection_parsers.append(CranParser(utils.processing_text))
-        elif collection == CollectionName.reuter and collection not in irs_instance.list_parsers():
-            collection_parsers.append(ReutersParser(utils.processing_text))
-        else:
-            return {"Error": "Invalid collection selected"}
-    
-    irs_instance.add_model(model)
-    for parser in collection_parsers:
-        irs_instance.add_parser(parser)
-        irs_instance.add_document_collection("./data", parser.get_pretty_name(), model.get_name())
+        if collection == CollectionName.cran and collection not in loaded_collection_parsers:
+            irs_instance.add_parser(CranParser(utils.processing_text))
+            irs_instance.add_document_collection("./data", collection, model.get_name())
+        elif collection == CollectionName.reuter and collection not in loaded_collection_parsers:
+            irs_instance.add_parser(ReutersParser(utils.processing_text))
+            irs_instance.add_document_collection("./data", collection, model.get_name())
     
     global selected_model 
     selected_model = model.get_name()
