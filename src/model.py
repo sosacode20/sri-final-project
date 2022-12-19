@@ -41,7 +41,10 @@ class Model:
             return self._get_document_by_id(documents, id, mid + 1, end)
         else:
             return self._get_document_by_id(documents, id, start, mid - 1)
-
+    
     #TODO: remake this method with binary search
     def get_document_by_id(self, id:int) -> Document:
         return self._get_document_by_id(self.documents, id, 0, len(self.documents) - 1)
+
+    def feedback(relevant_docs:list[int]):
+        pass

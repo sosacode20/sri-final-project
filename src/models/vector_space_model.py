@@ -169,3 +169,6 @@ class Vector_Model(Model):
             doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
         return [(self.documents[doc], rank) for rank, doc in self.last_ranking[offset:offset + first_n_results]]
         return [self.documents[x[1]] for x in self.last_ranking[offset:first_n_results]]
+
+    def feedback(relevant_docs:list[int]):
+        pass
