@@ -46,5 +46,5 @@ class Model:
     def get_document_by_id(self, id:int) -> Document:
         return self._get_document_by_id(self.documents, id, 0, len(self.documents) - 1)
 
-    def feedback(relevant_docs:list[int]):
+    def feedback(self, relevant_docs:list[int]):
         pass

@@ -5,6 +5,7 @@ from src.model import Model
 from src.storage import Storage
 from src import utils
 from src.irs_parser import CranParser, ReutersParser, Parser
+from fastapi.testclient import TestClient
 
 #Web application modules
 from fastapi import FastAPI, Query, Path, Body
@@ -18,6 +19,7 @@ from enum import Enum
 
 #Creating the FastAPI instance
 app = FastAPI()
+client = TestClient(app)
 
 #Initializing the application
 storage = Storage()
@@ -139,6 +141,23 @@ def make_query(
         documents.append(Document(id=doc[0], title=doc[1], body=doc[3][: None if summary_len == -1 else summary_len]))
     return documents
 
+@app.get("/api/query/pseudo-feedback", response_model = list[DocumentRank])
+def pseudo_feedback(
+    query: str = Query(default=..., title="Query", description="A query to be used by the retrieval system", regex="^(?!\s*$).+"),
+    limit: int = Query(default=10, title="Limit", description="The number of documents from the ranking to be returned"),
+    offset: int = Query(default=0, title="offset", description="The number of documents from the ranking to be skipped"),
+    summary_len: int = Query(default=-1, title="Summary Length", description="The number of characters from the document body to be returned")
+):
+    query.strip()
+    documents = []
+    irs_instance.models[selected_model].pseudo_feedback(query)
+    ranking = irs_instance.get_ranking(query, selected_model, limit, offset)#TODO: add offset
+    return [DocumentRank(id=doc[0], title=doc[1], body=doc[2][: None if summary_len == -1 else summary_len], rank = doc[3]) for doc in ranking]
+
+    for doc in ranking:
+        documents.append(Document(id=doc[0], title=doc[1], body=doc[3][: None if summary_len == -1 else summary_len]))
+    return documents
+
 @app.post("/api/select_model/{model_name}", response_model = str)
 def select_model(
      model_name: ModelName = Path(default=..., title="Model", description="The model to be used for processing the query"),
@@ -177,11 +196,9 @@ def clear():
     selected_model = None
     return {}
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
 
 
 
