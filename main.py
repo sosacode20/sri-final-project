@@ -148,6 +148,12 @@ def pseudo_feedback(
     offset: int = Query(default=0, title="offset", description="The number of documents from the ranking to be skipped"),
     summary_len: int = Query(default=-1, title="Summary Length", description="The number of characters from the document body to be returned")
 ):
+    #[ ] borrar esto
+    global irs_instance
+    irs_instance = IRS(Storage())
+    global selected_model
+    selected_model = None
+    
     query.strip()
     documents = []
     irs_instance.models[selected_model].pseudo_feedback(query)
