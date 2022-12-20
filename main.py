@@ -115,7 +115,7 @@ def get_model_options():
 
 @app.get("/api/collection_options", response_model = list[str])
 def get_collection_options():
-    return ["Cran", "Reuters"]
+    return ["cran", "reuters"]
 
 @app.get("/api/instantiated_models", response_model = list[str])
 def get_instantiated_models():
