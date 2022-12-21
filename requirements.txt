@@ -4,3 +4,4 @@ pandas
 nltk
 ipykernel
 black
+fastapi[all]
