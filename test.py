@@ -74,40 +74,63 @@ def main():
     precision_vector = 0
     precision_prob = 0
     precision_lsi = 0
-    for i in range(100):
+    RR_vector = 0
+    RR_prob = 0
+    RR_lsi = 0
+    RI_vector = 0
+    RI_prob = 0
+    RI_lsi = 0
+    # for i in range(len(query_results_vector)):
+    for i in range(10):
+        if query_results_vector[i][3] == 0:
+            continue
         if query_results_vector[i][0] in rels[str(int(query["id"]))]:
-            precision_vector += 1
+            RR_vector += 1
+        RI_vector += 1
+    # for i in range(len(query_results_prob)):
+    for i in range(10):
+        if query_results_prob[i][3] == 0:
+            continue
         if query_results_prob[i][0] in rels[str(int(query["id"]))]:
-            precision_prob += 1
+            RR_prob += 1
+        RI_prob += 1
+    # for i in range(len(query_results_lsi)):
+    for i in range(10):
+        if query_results_lsi[i][3] == 0:
+            continue
         if query_results_lsi[i][0] in rels[str(int(query["id"]))]:
-            precision_lsi += 1
-    precision_vector = precision_vector / 10
-    precision_prob = precision_prob / 10
-    precision_lsi = precision_lsi / 10
+            RR_lsi += 1
+        RI_lsi += 1
+    precision_vector = RR_vector/ (RR_vector + RI_vector)
+    precision_prob = RR_prob/ (RR_prob + RI_prob)
+    precision_lsi = RR_lsi/ (RR_lsi + RI_lsi)
 
     #recall
     recall_vector = 0
     recall_prob = 0
     recall_lsi = 0
-    for i in range(100):
-        if query_results_vector[i][0] in rels[str(int(query["id"]))]:
-            recall_vector += 1
-        if query_results_prob[i][0] in rels[str(int(query["id"]))]:
-            recall_prob += 1
-        if query_results_lsi[i][0] in rels[str(int(query["id"]))]:
-            recall_lsi += 1
-    recall_vector = recall_vector / len(rels[str(int(query["id"]))])
-    recall_prob = recall_prob / len(rels[str(int(query["id"]))])
-    recall_lsi = recall_lsi / len(rels[str(int(query["id"]))])
+    # for i in range(len(query_results_vector)):
+    #     if query_results_vector[i][0] in rels[str(int(query["id"]))]:
+    #         recall_vector += 1
+    # for i in range(len(query_results_prob)):
+    #     if query_results_prob[i][0] in rels[str(int(query["id"]))]:
+    #         recall_prob += 1
+    # for i in range(len(query_results_lsi)):
+    #     if query_results_lsi[i][0] in rels[str(int(query["id"]))]:
+    #         recall_lsi += 1
+    recall_vector = RR_vector / len(rels[str(int(query["id"]))])
+    recall_prob = RR_prob / len(rels[str(int(query["id"]))])
+    recall_lsi = RR_lsi / len(rels[str(int(query["id"]))])
 
     #F1
     f1_vector = 2 * (precision_vector * recall_vector) / (precision_vector + recall_vector)
     f1_prob = 2 * (precision_prob * recall_prob) / (precision_prob + recall_prob)
     f1_lsi = 2 * (precision_lsi * recall_lsi) / (precision_lsi + recall_lsi)
 
-    return
+    print("Precision Vector: " + str(precision_vector) + "\nPrecision Prob: " + str(precision_prob) + "\nPrecision LSI: " + str(precision_lsi))
+    print("\nRecall Vector: " + str(recall_vector) + "\nRecall Prob: " + str(recall_prob) + "\nRecall LSI: " + str(recall_lsi))
+    print("\nF1 Vector: " + str(f1_vector) + "\nF1 Prob: " + str(f1_prob) + "\nF1 LSI: " + str(f1_lsi))
     
-#compare the results with the cranqrel file
 
 
 if __name__ == "__main__":
