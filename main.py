@@ -209,23 +209,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Guide request for the API
 class Item(BaseModel):
     query: str = Field(..., example="query")
