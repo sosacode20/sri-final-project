@@ -117,7 +117,7 @@ class LSI_Model(Model):
             sol += doc_column[i] * query_vector[i]
         return sol / (doc_column_norm * query_norm)
 
-    def get_ranking(self, query: str, first_n_results: int, offset: int, lang: str = 'english') -> list[tuple[Document, float]]:
+    def get_ranking(self, query: str, first_n_results: int, offset: int = 0, lang: str = 'english') -> list[tuple[Document, float]]:
         if self.dirty:
             self.generate_term_doc_matrix()
         U, S, Vt = self.apply_svd()

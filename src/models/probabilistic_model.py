@@ -74,7 +74,7 @@ class Probabilistic_Model(Model):
         self.ranked = sorted(scores, key=lambda x: x[1], reverse=True)
         return self.ranked
 
-    def get_ranking(self, query:str, amount:int, offset:int, lang:str = 'english') -> list[tuple[Document, int]]:
+    def get_ranking(self, query:str, amount:int, offset:int = 0, lang:str = 'english') -> list[tuple[Document, int]]:
         if self.dirty:
             self.generate_inverted_index()
             self.rsv_weight()

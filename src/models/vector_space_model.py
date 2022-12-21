@@ -157,7 +157,7 @@ class Vector_Model(Model):
             return 0
         return dot_product / norm
 
-    def get_ranking(self, query: str, first_n_results: int, offset:int, lang: str = 'english'):
+    def get_ranking(self, query: str, first_n_results: int, offset:int = 0, lang: str = 'english'):
         self.generate_document_vectors()
         query_vector = self.generate_query_vector(query, lang)
         doc_rank: list[tuple[float, int]] = []
