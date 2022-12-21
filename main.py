@@ -26,23 +26,6 @@ storage = Storage()
 irs_instance = IRS(storage)
 selected_model = "None"
 
-'''
-
-Application Workflow:
-[x] User defines data collection // TODO: If theres enough time, implement 
-a way to receive the data collection directory
- [x] Model is instantiated with text preprocessor // TODO: Discuss 
- if we should instantiate the model with the preprocessor
-[x] Add collection to IRS // TODO: If this collection is already in 
-cache then it should be loaded from there (ask for cache format)
-
-New Functionalities with front in mind
-[x] Getting instantiated Models
-[ ] Getting collections from Models
-[ ] Queries are only done in a model and collection specific
-[ ] Getting ranked documents with offset
-
-'''
 
 class ModelName(str, Enum):
     prob = "Probabilistic Model"
@@ -59,55 +42,6 @@ class DocumentRank(BaseModel):
     title: str
     body: str
     rank: float
-
-'''
-#TODO: Divide this in two different endpoints
-@app.get("/api")
-def set_model_collection(
-    model_name: ModelName = Query(default=..., title="Model", description="The model to be used for the Information Retrieval System"),
-    collection: CollectionName = Query(default=..., title="Collection", description="The collection to be used for the Information Retrieval System")
-    ):
-    #TODO: Remove this when its done
-    model = None
-    if model_name == ModelName.placeholder or collection == CollectionName.placeholder:
-        return {"Error": "Model or collection not implemented yet"}  
-    elif model_name == ModelName.prob:
-        model = probabilistic_model.Probabilistic_Model(utils.processing_text)
-    elif model_name == ModelName.vect:
-        model = vector_space_model.Vector_Model(utils.processing_text)
-    else:
-        return {"Error": "Invalid model selected"}
-    
-    if collection == CollectionName.cran:
-        parser = CranParser(utils.processing_text)
-    elif collection == CollectionName.reuter:
-        parser = ReutersParser(utils.processing_text)
-    else:
-        return {"Error": "Invalid collection selected"}
-    
-    irs_instance.add_model(model)
-    irs_instance.add_parser(parser)
-
-    #TODO: This should not be done if collection is already in cache
-    irs_instance.add_document_collection("./data", parser.get_pretty_name(), model.get_name())
-    return {"Message": "IRS initialized"}
-
-#TODO: This does not work yet
-@app.get("/api/document/{model_name}/{id}", response_model=Document)
-def get_document(
-    id: int = Path(..., 
-     title="Document ID", description="The ID of the document to be returned"),
-    model_name: ModelName = Path(default=..., 
-     title="Model", description="The model to be used for processing the query")
-    ):
-    document = irs_instance.models[model_name].get_document_by_id(id)
-    return Document(id=document.doc_id, title=document.doc_id, body=document.doc_body)
-
-#####################################
-#    New Back With Front in Mind    #
-#####################################
-'''
-
 
 @app.get("/api/model_options", response_model = list[str])
 def get_model_options():
@@ -205,36 +139,3 @@ def clear():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Guide request for the API
-class Item(BaseModel):
-    query: str = Field(..., example="query")
-
-@app.put("/items/{item_id}")
-async def guide_endpoint(
-    item_id: int = Path(),# Path parameter
-    item: Item = Body(embed=True),# Body parameter
-    q: str = Query(default = None, alias="item-query")# Query parameter
-    ):
-    results = {"item_id": item_id, "item": item, "query": item.query}
-    return results
