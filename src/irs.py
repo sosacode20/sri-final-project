@@ -74,7 +74,7 @@ class IRS:
             model_name (str): The name of the model in the system that will index the documents
 
         Raises:
-            Exception: If the parser is not in the system
+            Exception: If the pars/er is not in the system
             Exception: If the model is not in the system
         """
         if parser_name not in self.parsers:
