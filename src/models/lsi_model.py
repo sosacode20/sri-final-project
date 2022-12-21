@@ -65,8 +65,11 @@ class LSI_Model(Model):
         r = random.randint(0, 2)
         return k[r]
 
-    def _query_dimension_reduction(self, U, S):
-        query_vector = np.dot(np.dot(np.linalg.inv(S),U.transpose()),self.query_vector)
+    def _query_dimension_reduction(self, U, S, query_vector):
+        Si = np.linalg.inv(S)
+        Ut = U.transpose(U)
+        a = np.dot(Si,Ut)
+        query_vector = np.dot(a,query_vector)
         query_vector = np.round(query_vector,4)
         return query_vector
 
@@ -89,20 +92,21 @@ class LSI_Model(Model):
     #TODO: Review this
     def generate_term_doc_matrix(self):
         self.term_doc_matrix = np.zeros((len(self.df), len(self.documents)))
-        for token in self.df:
-            for i in range(len(self.documents)):
-                if (token, i) in self.tf:
+        for i, token in enumerate(self.df):
+            for j in range(len(self.documents)):
+                if (token, j) in self.tf:
                     #tf-idf
-                    self.term_doc_matrix[self.df[token], i] = self.tf[(token, i)] * math.log(len(self.documents) / self.df[token])
+                    self.term_doc_matrix[i, j] = self.tf[(token, j)] * math.log(len(self.documents) / self.df[token])
         self.dirty = 0
 
     #TODO: Review this
-    def generate_query_vector(self, query: str):
-        query = self.text_preprocessor(query)
+    def generate_query_vector(self, query: str, lang: str = 'english'):
+        query = self.text_processor(query, lang)
         query_vector = np.zeros((len(self.df), 1))
         for token in query:
-            if token in self.df:
-                query_vector[self.df[token], 0] = 1
+            for i, term in enumerate(self.df):
+                if token == term:
+                    query_vector[i, 0] = 1
         return query_vector
 
     def similarity(self, doc_column, query_vector):
@@ -118,7 +122,7 @@ class LSI_Model(Model):
             self.generate_term_doc_matrix()
         U, S, Vt = self.apply_svd()
         query_vector = self.generate_query_vector(query)
-        query_vector = self._query_dimension_reduction(U, S)
+        query_vector = self._query_dimension_reduction(U, S, query_vector)
 
         ##
         score = 0
