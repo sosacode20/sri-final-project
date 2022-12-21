@@ -67,7 +67,7 @@ class LSI_Model(Model):
 
     def _query_dimension_reduction(self, U, S, query_vector):
         Si = np.linalg.inv(S)
-        Ut = U.transpose(U)
+        Ut = U.transpose()
         a = np.dot(Si,Ut)
         query_vector = np.dot(a,query_vector)
         query_vector = np.round(query_vector,4)
@@ -84,7 +84,7 @@ class LSI_Model(Model):
         rows = len(self.term_doc_matrix)
         columns = len(self.term_doc_matrix[0])
         U2 = U[ : rows, : k]
-        S2 = S[0 : k]
+        S2 = S[0 : k, 0 : k]
         VT2 = VT[ : k, : columns]
 
         return U2, S2, VT2
@@ -126,13 +126,17 @@ class LSI_Model(Model):
 
         ##
         score = 0
-        rank = {}
+        doc_rank = []
         ##
         for i in range(len(Vt[0])):
             doc_column = Vt[:, i:i + 1]
             score = np.round(self.similarity(doc_column, query_vector), 4)
-            doc_name = self.documents[i]
-            rank[doc_name:score]
+            doc = self.documents[i]
+            doc_rank.append((score[0], i))
+
+        self.last_ranking = sorted(
+            doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
+        return [(self.documents[doc], rank) for rank, doc in self.last_ranking[offset:offset + first_n_results]]
         
         result = dict(sorted(rank.items(), key = lambda item: item[1], reverse=True))
         return result
