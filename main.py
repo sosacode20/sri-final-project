@@ -139,3 +139,19 @@ def clear():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+
+## Guide request for the API
+class Item(BaseModel):
+    query: str = Field(..., example="query")
+
+@app.put("/items/{item_id}")
+async def guide_endpoint(
+    item_id: int = Path(),# Path parameter
+    item: Item = Body(embed=True),# Body parameter
+    q: str = Query(default = None, alias="item-query")# Query parameter
+    ):
+    results = {"item_id": item_id, "item": item, "query": item.query}
+    return results
