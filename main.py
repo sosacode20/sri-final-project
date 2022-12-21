@@ -125,7 +125,7 @@ def get_instantiated_models():
 def get_selected_model():
     return selected_model
 
-@app.get("/api/query", response_model = list[DocumentRank])
+@app.get("/api/query", response_model = (list[DocumentRank], int))
 def make_query(
     query: str = Query(default=..., title="Query", description="A query to be used by the retrieval system", regex="^(?!\s*$).+"),
     limit: int = Query(default=10, title="Limit", description="The number of documents from the ranking to be returned"),
@@ -134,8 +134,8 @@ def make_query(
 ):
     query.strip()
     documents = []
-    ranking = irs_instance.get_ranking(query, selected_model, limit, offset)#TODO: add offset
-    return [DocumentRank(id=doc[0], title=doc[1], body=doc[2][: None if summary_len == -1 else summary_len], rank = doc[3]) for doc in ranking]
+    ranking, total = irs_instance.get_ranking(query, selected_model, limit, offset)#TODO: add offset
+    return ([DocumentRank(id=doc[0], title=doc[1], body=doc[2][: None if summary_len == -1 else summary_len], rank = doc[3]) for doc in ranking], total)
 
     for doc in ranking:
         documents.append(Document(id=doc[0], title=doc[1], body=doc[3][: None if summary_len == -1 else summary_len]))
