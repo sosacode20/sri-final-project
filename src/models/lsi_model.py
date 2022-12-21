@@ -6,6 +6,7 @@
 
 
 
+from unittest import result
 from src.model import Model
 from typing import Callable
 # from ..document import Document
@@ -95,11 +96,28 @@ class LSI_Model(Model):
                     self.term_doc_matrix[self.df[token], i] = self.tf[(token, i)] * math.log(len(self.documents) / self.df[token])
         self.dirty = 0
 
+    #TODO: Review this
+    def generate_query_vector(self, query: str):
+        query = self.text_preprocessor(query)
+        query_vector = np.zeros((len(self.df), 1))
+        for token in query:
+            if token in self.df:
+                query_vector[self.df[token], 0] = 1
+        return query_vector
+
+    def similarity(self, doc_column, query_vector):
+        sol = 0
+        doc_column_norm = np.linalg.norm(doc_column)
+        query_norm = np.linalg.norm(query_vector)
+        for i in range(0,min(len(doc_column),len(query_vector))):
+            sol += doc_column[i] * query_vector[i]
+        return sol / (doc_column_norm * query_norm)
+
     def get_ranking(self, query: str, first_n_results: int, offset: int, lang: str = 'english') -> list[tuple[Document, float]]:
         if self.dirty:
             self.generate_term_doc_matrix()
         U, S, Vt = self.apply_svd()
-        query_vector = self.make_query_vector
+        query_vector = self.generate_query_vector(query)
         query_vector = self._query_dimension_reduction(U, S)
 
         ##
@@ -111,5 +129,6 @@ class LSI_Model(Model):
             score = np.round(self.similarity(doc_column, query_vector), 4)
             doc_name = self.documents[i]
             rank[doc_name:score]
+        
         result = dict(sorted(rank.items(), key = lambda item: item[1], reverse=True))
         return result
