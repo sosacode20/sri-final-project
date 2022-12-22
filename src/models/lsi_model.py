@@ -74,6 +74,7 @@ class LSI_Model(Model):
         return query_vector
 
     def apply_svd(self):
+        # cache this
         U, S, VT = np.linalg.svd(self.term_doc_matrix)
         U = np.round(U,4)
         S = np.round(S,4)
@@ -91,12 +92,15 @@ class LSI_Model(Model):
 
     #TODO: Review this
     def generate_term_doc_matrix(self):
+        if not self.dirty:
+            return
         self.term_doc_matrix = np.zeros((len(self.df), len(self.documents)))
         for i, token in enumerate(self.df):
             for j in range(len(self.documents)):
                 if (token, j) in self.tf:
                     #tf-idf
                     self.term_doc_matrix[i, j] = self.tf[(token, j)] * math.log(len(self.documents) / self.df[token])
+        self.U, self.S, self.Vt = self.apply_svd()
         self.dirty = False
 
     #TODO: Review this
@@ -115,12 +119,12 @@ class LSI_Model(Model):
         query_norm = np.linalg.norm(query_vector)
         for i in range(0,min(len(doc_column),len(query_vector))):
             sol += doc_column[i] * query_vector[i]
-        return sol / (doc_column_norm * query_norm)
+        div = doc_column_norm * query_norm if doc_column_norm != 0 and query_norm != 0 else 1
+        return sol / div
 
     def get_ranking(self, query: str, first_n_results: int, offset: int = 0, lang: str = 'english') -> list[tuple[Document, float]]:
-        if self.dirty:
-            self.generate_term_doc_matrix()
-        U, S, Vt = self.apply_svd()
+        self.generate_term_doc_matrix()
+        U, S, Vt = self.U, self.S, self.Vt # this is now cached
         query_vector = self.generate_query_vector(query)
         query_vector = self._query_dimension_reduction(U, S, query_vector)
 
@@ -131,7 +135,7 @@ class LSI_Model(Model):
         for i in range(len(Vt[0])):
             doc_column = Vt[:, i:i + 1]
             score = np.round(self.similarity(doc_column, query_vector), 4)
-            doc = self.documents[i]
+            # doc = self.documents[i]
             doc_rank.append((score[0], i))
 
         self.last_ranking = sorted(
