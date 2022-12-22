@@ -4,7 +4,11 @@
 
 This project is for educational purposes. The objective is to implement 3 *Information Retrieval Systems* for the final delivery. Actually there is only one model implemented, the *Classic Vector Space Model*.
 
-If you need more info about the implementation done here please refer to this [file](Pre-entrega.md) and translate with google translate 😅
+If you need more info about the implementation done here please refer to this [file](./docs/pre-delivery/Pre-entrega.md) and translate with google translate 😅.
+
+### **Final Report**
+
+The final report for this project is located in the /docs folder. It is in .tex and .pdf format.
 
 ## Arquitectura del Proyecto
 
