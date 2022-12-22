@@ -4,6 +4,11 @@ __pycache__/
 *$py.class
 *.pkl
 
+# latex temporary files
+*.aux
+*.fdb_latexmk
+*.fls
+
 # C extensions
 *.so
 
