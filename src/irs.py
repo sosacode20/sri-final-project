@@ -13,7 +13,7 @@ class IRS:
         self.models: dict[str, Model] = {}
         self.parsers: dict[str, Parser] = {}
 
-    def add_model(self, model: Model):
+    def add_model(self, model: Model, load_cache: bool = False):
         """This method add a model to the IRS
 
         Args:
@@ -26,7 +26,7 @@ class IRS:
         if model.get_name() in self.models:
             raise Exception(
                 f"A model with the same name as '{model.get_name()}' already exists in the system")
-        if self.storage.model_exists(model.get_name()):
+        if self.storage.model_exists(model.get_name()) and load_cache:
             model = self.storage.load_model(model.get_name())
         self.models[model.get_name()] = model
 
@@ -74,7 +74,7 @@ class IRS:
             model_name (str): The name of the model in the system that will index the documents
 
         Raises:
-            Exception: If the parser is not in the system
+            Exception: If the pars/er is not in the system
             Exception: If the model is not in the system
         """
         if parser_name not in self.parsers:
@@ -90,12 +90,17 @@ class IRS:
                 for document in documents:
                     model.add_document(document)
 
-    def get_ranking(self, query:str, model_name:str, first_n_results:int):
+    def get_ranking(self, query:str, model_name:str, first_n_results:int, offset:int) -> list[tuple[Document,float]]:
         if model_name not in self.models:
             raise Exception(f'The model with name {model_name} it\'s not loaded in the system')
         model = self.models[model_name]
-        return [(doc.doc_id, doc.doc_name) for doc in model.get_ranking(query, first_n_results)]
+        ranking = model.get_ranking(query, first_n_results, offset * first_n_results)
+        return ([(doc.doc_id, doc.doc_name, doc.doc_body, rank) for doc, rank in ranking ], len(ranking))
 
     def save(self):
         for model in self.models.values():
             self.storage.save_model(model.get_name(), model)
+
+    def clear(self):
+        self.models: dict[str, Model] = {}
+        self.parsers: dict[str, Parser] = {}

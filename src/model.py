@@ -18,7 +18,7 @@ class Model:
         """
         pass
 
-    def get_ranking(self, query:str, first_n_results:int, lang:str = 'english') -> list[Document]:
+    def get_ranking(self, query:str, first_n_results:int, offset:int, lang:str = 'english') -> list[tuple[Document, float]]:
         """Given a query this method returns the first n more relevant results
 
         Args:
@@ -30,3 +30,21 @@ class Model:
             list[Document]: A list of documents sorted by relevance
         """
         return [x for x in self.documents]
+
+    def _get_document_by_id(self, documents:list[Document], id:int, start:int, end:int) -> Document:
+        if start > end:
+            return None
+        mid = (start + end) // 2
+        if documents[mid].doc_id == id:
+            return documents[mid]
+        elif documents[mid].doc_id < id:
+            return self._get_document_by_id(documents, id, mid + 1, end)
+        else:
+            return self._get_document_by_id(documents, id, start, mid - 1)
+    
+    #TODO: remake this method with binary search
+    def get_document_by_id(self, id:int) -> Document:
+        return self._get_document_by_id(self.documents, id, 0, len(self.documents) - 1)
+
+    def feedback(self, relevant_docs:list[int]):
+        pass
