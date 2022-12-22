@@ -18,7 +18,7 @@ import random
 class LSI_Model(Model):
     def __init__(self, text_preprocessor: Callable[[str, str], list[str]]):
         super().__init__(text_preprocessor)
-        self.dirty = 0
+        self.dirty : bool = False
         self.tf: dict[tuple[str, int], float] = {}
         self.df: dict[str, int] = {}
         self.tf_idf = None
@@ -30,7 +30,7 @@ class LSI_Model(Model):
 
     def add_document(self, document: Document):
         # tell the model that needs to recalculate the vectors of documents
-        self.dirty = 1
+        self.dirty = True
         self.documents.append(document)
         title = document.doc_normalized_name
         body = document.doc_normalized_body
@@ -97,7 +97,7 @@ class LSI_Model(Model):
                 if (token, j) in self.tf:
                     #tf-idf
                     self.term_doc_matrix[i, j] = self.tf[(token, j)] * math.log(len(self.documents) / self.df[token])
-        self.dirty = 0
+        self.dirty = False
 
     #TODO: Review this
     def generate_query_vector(self, query: str, lang: str = 'english'):
@@ -138,5 +138,3 @@ class LSI_Model(Model):
             doc_rank, key=lambda rank_index: rank_index[0], reverse=True)
         return [(self.documents[doc], rank) for rank, doc in self.last_ranking[offset:offset + first_n_results]]
         
-        result = dict(sorted(rank.items(), key = lambda item: item[1], reverse=True))
-        return result

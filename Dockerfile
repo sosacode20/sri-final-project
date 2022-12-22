@@ -5,6 +5,8 @@ WORKDIR /irs-final-project
 COPY src/ ./src
 COPY cli.py .
 COPY install.py .
+COPY docs/ ./docs
+COPY main.py .
 COPY requirements.txt .
 COPY Pre-entrega.md .
 COPY README.md .
@@ -20,4 +22,4 @@ RUN source ./.venv/bin/activate
 RUN pip install -r ./requirements.txt
 RUN python3 ./install.py
 
-CMD [ "bash" ]
+CMD [ "python3", "./main.py" ]
