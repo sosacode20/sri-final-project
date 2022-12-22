@@ -47,7 +47,7 @@ python cli.py
 La arquitectura actual del proyecto está pensada con el objetivo de poder implementar de forma sencilla los 3 Modelos de Recuperación de Información que se piden como requisito para la entrega final. Por esto tuvimos que pensar en una buena jerarquía de clases para lograr la flexibilidad deseada
 La siguiente imagen, creada por nosotros, muestra la idea general del flujo de nuestro proyecto:
 
-![Architecture](Project-architecture.excalidraw.svg)
+![Architecture](../../Project-architecture.excalidraw.svg)
 
 Siguiendo la imagen anterior, el flujo de nuestro programa es:
 
